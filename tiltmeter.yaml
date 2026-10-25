@@ -1,0 +1,17 @@
+# Tiltmeter for Northwind Billing.
+version: 1
+
+subscriptions:
+  # Stripe publishes no change notices, so follow its OpenAPI spec: the latest version on
+  # Stripe's spec repository, compared first with the version this code was written for.
+  - openapi: https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json
+    baseline: https://raw.githubusercontent.com/stripe/openapi/677ea54827/openapi/spec3.json  # API 2024-06-20
+    provider: api.stripe.com
+    sdks: ["pypi:stripe"]
+
+llm:
+  enabled: false
+
+# The fix agent runs on the Claude Code login of whoever runs `tiltmeter notices apply`.
+fix:
+  agent: claude-code
