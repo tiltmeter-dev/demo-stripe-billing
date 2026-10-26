@@ -20,9 +20,15 @@ class Renewal:
 
 def renewal(subscription_id: str) -> Renewal:
     subscription = stripe.Subscription.retrieve(subscription_id)
-    start = datetime.fromtimestamp(subscription.current_period_start, UTC)
-    end = datetime.fromtimestamp(subscription.current_period_end, UTC)
-    discount = subscription.discount.coupon.percent_off if subscription.discount else None
+    # The period moved from the subscription to its items; read the old fields as a fallback.
+    items = (subscription.get("items") or {}).get("data") or []
+    period = items[0] if items else subscription
+    start = datetime.fromtimestamp(period["current_period_start"], UTC)
+    end = datetime.fromtimestamp(period["current_period_end"], UTC)
+    # subscription.discount was removed without a replacement.
+    discount_object = subscription.get("discount")
+    coupon = discount_object.get("coupon") if discount_object else None
+    discount = coupon.get("percent_off") if coupon else None
     return Renewal(subscription.customer, end, (end - start).days, discount)
 
 
