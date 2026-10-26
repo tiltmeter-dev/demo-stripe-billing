@@ -1,0 +1,34 @@
+# Follows the API providers in tiltmeter.yaml. When one of their changes affects this
+# code, an agent adapts it, the tests run on its edits, and a pull request opens.
+name: API changes
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: tiltmeter-notices
+
+jobs:
+  notices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install the dependencies (the tests run without network)
+        run: pip install -r requirements.txt pytest
+      - name: Install Claude Code, the agent that edits the code
+        run: npm install -g @anthropic-ai/claude-code
+      - uses: tiltmeter-dev/tiltmeter-action@provider-mode
+        with:
+          mode: notices
+          source: git+https://github.com/tiltmeter-dev/tiltmeter@provider-mode
+          agent: claude-code
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
