@@ -17,3 +17,5 @@ fix:
   agent: claude-code
   # Run the tests on the agent's edits; a failure goes back to the agent.
   test_command: python -m pytest -q
+  # GitHub's runners cannot cut the network for the tests; they still get no secrets.
+  test_network: true
