@@ -11,11 +11,17 @@ from billing import stripe_client  # noqa: F401  (configures Stripe)
 
 def invoice_summary(invoice_id: str) -> dict[str, Any]:
     invoice = stripe.Invoice.retrieve(invoice_id, expand=["charge"])
+    # price and proration were removed from invoice lines, and charge from the invoice.
     lines = [
-        {"price": line.price.id, "amount": line.amount, "proration": line.proration}
+        {
+            "price": (line.get("price") or {}).get("id"),
+            "amount": line.amount,
+            "proration": line.get("proration"),
+        }
         for line in invoice.lines.data
     ]
-    card = invoice.charge.payment_method_details.card.last4 if invoice.charge else None
+    charge = invoice.get("charge")
+    card = charge.payment_method_details.card.last4 if charge else None
     return {
         "number": invoice.number,
         "total": invoice.total,
