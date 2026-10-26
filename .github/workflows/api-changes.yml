@@ -25,10 +25,9 @@ jobs:
         run: pip install -r requirements.txt pytest
       - name: Install Claude Code, the agent that edits the code
         run: npm install -g @anthropic-ai/claude-code
-      - uses: tiltmeter-dev/tiltmeter-action@provider-mode
+      - uses: tiltmeter-dev/tiltmeter-action@v1.5.0
         with:
           mode: notices
-          source: git+https://github.com/tiltmeter-dev/tiltmeter@provider-mode
           agent: claude-code
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
